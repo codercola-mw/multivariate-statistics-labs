@@ -13,7 +13,7 @@ for (i in 2:length(data)) {
 charac
 
 
-##Q1. b
+##Q1.b
 
 
 ##Q2. a
@@ -47,8 +47,8 @@ faces(data[,-1],labels = data[,1])
 library(corrplot)
 corrplot(cor_mat) #Very high correlations between the variables
 
-plot(x=rownames(mean_correct_mat),y=mean_correct_mat[,1])
 
+#Multivariate residuals plot. Outliers can be detected from the plots here
 mean_correct_mat<-as.data.frame(mean_correct_mat)
 mean_correct_mat$country<-data$Country
 rownames(mean_correct_mat)<-data[,1]
@@ -78,5 +78,7 @@ text(1:54, mean_correct_mat$`3000m`, labels=mean_correct_mat$country, cex= 0.7, 
 plot(x=1:54,y=mean_correct_mat$Marathon,xlab = "Country",ylab="Marathon")
 text(1:54, mean_correct_mat$Marathon, labels=mean_correct_mat$country, cex= 0.7, pos=1)
 
+
+#Q.3.B
 
 
