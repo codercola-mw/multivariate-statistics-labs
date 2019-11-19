@@ -1,6 +1,6 @@
 
 #importing data
-data <- read.delim(file="~/Desktop/Lab1/T1-9.dat", sep="\t", header=FALSE)
+data <- read.delim(file="C:/Users/Young/Documents/Multivariate/732A97_HT2019_Materials/T1-9.dat", sep="\t", header=FALSE)
 colnames(data)<-c("Country","100m","200m","400m","800m","1500m","3000m","Marathon")
 
 ##Q1. a
@@ -8,7 +8,7 @@ charac <- data.frame(variable = as.numeric(), mean=as.numeric(), std_dev=as.nume
 for (i in 2:length(data)) {
   mean_v <- mean(data[[i]])
   std_dev_v <- sd(data[[i]])
-  charac <- rbind(charac, data.frame(variable = as.numeric(i-1), mean=mean_v, std_dev=std_dev_v))
+  charac <- rbind(charac, data.frame(variable = colnames(data)[i], mean=mean_v, std_dev=std_dev_v))
 }
 charac
 
@@ -17,22 +17,19 @@ charac
 
 
 ##Q2. a
-
-
 cov_mat<-cov(data[,-1])
 cor_mat<-cor(data[,-1])
 #### they are symmetric matrices
 
 ##Q2.B
 
-pairs(data[,-1],pch=19,upper.panel = NULL) #It seems to outliers in each plot. Outlier tests can be necessary to class those observations as outliers
-
-
+pairs(data[,-1],pch=19,upper.panel = NULL) 
+#It seems to outliers in each plot. Outlier tests can be necessary to class those observations as outliers
 
 
 ##Q2.3
 #Chernoff faces is used here
-install.packages("aplpack")
+#install.packages("aplpack")
 library(aplpack)
 faces(data[,-1],labels = data[,1])
 
