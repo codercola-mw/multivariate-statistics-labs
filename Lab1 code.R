@@ -17,17 +17,7 @@ charac
 
 
 ##Q2. a
-data_mat <- as.matrix(data[,-1])
-for (i in 1:7) {
-  colnames(data_mat)[i] <- paste("V", i, sep='')
-}
-mean_vect <- as.vector(charac[,2])
-mean_mat <- matrix(0, ncol=7, nrow=nrow(data_mat))
-for (i in 1:nrow(data_mat)) {
-  mean_mat[i,] <- mean_vect
-}
-mean_correct_mat <- data_mat - mean_mat
-cov_mat <- t(mean_correct_mat) %*% mean_correct_mat
+
 
 cov_mat<-cov(data[,-1])
 cor_mat<-cor(data[,-1])
@@ -59,3 +49,13 @@ text(mean_correct_mat, labels=data[,1])
 
 
 
+data_mat <- as.matrix(data[,-1])
+for (i in 1:7) {
+  colnames(data_mat)[i] <- paste("V", i, sep='')
+}
+mean_vect <- as.vector(charac[,2])
+mean_mat <- matrix(0, ncol=7, nrow=nrow(data_mat))
+for (i in 1:nrow(data_mat)) {
+  mean_mat[i,] <- mean_vect
+}
+mean_correct_mat <- data_mat - mean_mat
