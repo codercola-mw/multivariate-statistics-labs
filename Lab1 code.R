@@ -56,3 +56,8 @@ for (i in 1:nrow(data_mat)) {
   mean_mat[i,] <- mean_vect
 }
 mean_correct_mat <- data_mat - mean_mat
+for (i in 1:7) {
+  colnames(mean_correct_mat)[i] <- colnames(data)[i+1]
+}
+country <- as.vector(data[,1])
+rownames(mean_correct_mat) <- country
