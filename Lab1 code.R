@@ -64,3 +64,9 @@ rownames(mean_correct_mat) <- country
 v_1 <- as.vector(diag(cov_mat))
 v_1 <- diag(v_1)
 v_1 <- solve(v_1)
+scale_dist <- matrix(0, nrow=nrow(mean_correct_mat))
+rownames(scale_dist) <- country
+colnames(scale_dist) <- "Scaled Distance"
+for (i in 1:nrow(mean_correct_mat)) {
+  scale_dist[i] <- t(as.matrix(mean_correct_mat[i,])) %*% v_1 %*% (as.matrix(mean_correct_mat[i,]))
+}
