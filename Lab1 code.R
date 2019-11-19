@@ -70,3 +70,6 @@ colnames(scale_dist) <- "Scaled Distance"
 for (i in 1:nrow(mean_correct_mat)) {
   scale_dist[i] <- t(as.matrix(mean_correct_mat[i,])) %*% v_1 %*% (as.matrix(mean_correct_mat[i,]))
 }
+
+sort(scale_dist, decreasing=TRUE)[1:5]
+scale_dist[which(scale_dist > 11.3), ]
