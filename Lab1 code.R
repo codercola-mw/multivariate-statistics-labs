@@ -134,3 +134,5 @@ d2_swe <- c(d2_extreme, mat_2["SWE",])
 d2_com <- czek_matrix(d2_swe)
 plot.czek_matrix(d2_com)
 
+.
+
