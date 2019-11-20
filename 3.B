@@ -16,6 +16,7 @@ for (i in 1:nrow(data_mat)) {
 }
 mean_correct_mat <- data_mat - mean_mat
 dis <- (diag(mean_correct_mat %*% t(mean_correct_mat))^(1/2))
-Eulidean_dis <- data.frame(data[,1], Eulidean_dis)
-extreme_dis <- country_dis[order(country_dis$Eulidean_dis, decreasing = TRUE)[1:5],]
+Eulidean_dis <- matrix(dis)
+row.names(Eulidean_dis) <- data[,1]
+extreme_dis <- Eulidean_dis[order(Eulidean_dis, decreasing = TRUE)[1:5],]
 print(extreme_dis)
