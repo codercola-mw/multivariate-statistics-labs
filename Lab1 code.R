@@ -121,18 +121,19 @@ d2_extreme <- mat_2[order(mat_2, decreasing = TRUE)[1:5],]
 
 # 3.e
 library(RMaCzek)
-eulidean_swe <- c(extreme_dis,Eulidean_dis["SWE",])
-eulidean_com <- czek_matrix(eulidean_swe)
-plot.czek_matrix(eulidean_com)
 
-scale_swe <- c(scale_extreme, scale_dist["SWE",])
-names(scale_swe)[6] <- "SWE"
-scale_com <- czek_matrix(scale_swe)
-plot.czek_matrix(scale_com)
+#euli_dis_czek
+euli_dist <- czek_matrix(Eulidean_dis)
+plot.czek_matrix(euli_dist)
 
-d2_swe <- c(d2_extreme, mat_2["SWE",])
-d2_com <- czek_matrix(d2_swe)
-plot.czek_matrix(d2_com)
+#scale_dis_czek
+sca_dist <- czek_matrix(scale_dist)
+plot.czek_matrix(sca_dist)
+
+#d2_dis_czek
+d2_dis <- czek_matrix(mat_2)
+plot.czek_matrix(d2_dis)
+
 
 .
 
