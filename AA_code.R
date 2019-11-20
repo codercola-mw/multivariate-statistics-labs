@@ -20,7 +20,8 @@ cov_mat<-cov(data[,-1])
 cor_mat<-cor(data[,-1])
 
 ##Q2.B
-pairs(data[,-1],pch=19,upper.panel = NULL) #It seems to outliers in each plot. Outlier tests can be necessary to class those observations as outliers
+pairs(data[,-1],pch=19,upper.panel = NULL) 
+#It seems to be outliers in every plot. 
 
 
 ##Q2.C
@@ -67,3 +68,28 @@ d2values
 d2frame<-data.frame("Country"=data$Country,d2values)
 d2frame<-d2frame[order(d2values,decreasing = TRUE),]
 head(d2frame)
+
+class(mean_correct_mean)
+
+
+
+###Part of 3.E. To run this you need the codes from 3.B,3.C and 3.D in same script
+###Plot. Comparing distances between diffent distance measurement methods
+#Sweden is not extreme but have been included in the plot anyway
+#The square distance and mahalabonis distance is almost same for SWE and thats why the red point for Sweden is "missing"
+
+swe_frame<-data.frame(rep("SWE",3),c(Eulidean_dis["SWE",][[1]],scale_dist["SWE",],d2frame["49",2]),
+                      c("sq_dist","extreme_dis","mahal_dis"))
+colnames(swe_frame)<-colnames(distance_frame)        
+
+sq_dist_frame<-data.frame("Country"=names(sq_dist),"distance"=sq_dist);rownames(sq_dist_frame)<-1:nrow(sq_dist_frame)
+extreme_dis_frame<-data.frame("Country"=names(extreme_dis),"distance"=extreme_dis);rownames(extreme_dis_frame)<-1:nrow(sq_dist_frame)
+mah_frame<-as.data.frame(d2frame[1:5,]);rownames(mah_frame)<-1:5;colnames(mah_frame)<-c("Country","distance")
+dist_names<-c(rep("sq_dist",5),rep("extreme_dis",5),rep("mahal_dis",5))
+
+distance_frame<-data.frame(rbind(sq_dist_frame,extreme_dis_frame,mah_frame),dist_names)
+distance_frame<-rbind(distance_frame,swe_frame)
+
+ggplot(distance_frame,aes(x=Country,y=distance,color=dist_names))+geom_point(size=3)+theme_bw()+
+  theme(legend.title = element_blank())+ylab("Distance")
+
