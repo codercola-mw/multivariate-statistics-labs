@@ -35,7 +35,7 @@ faces(data[,-1],labels = data[,1])
 library(corrplot)
 corrplot(cor_mat) #Very high correlations between all the variables
 
-
+#Q3.A
 #Multivariate residuals plot. Outliers can be detected from the plots here
 mean_correct_mat2<-as.data.frame(mean_correct_mat)
 mean_correct_mat2$country<-data$Country
