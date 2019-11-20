@@ -42,8 +42,6 @@ faces(data[,-1],labels = data[,1])
 mean_mat
 pairs(mean_correct_mat, labels = data[,1])
 
-text(mean_correct_mat, labels=data[,1])
-
 
 
 data_mat <- as.matrix(data[,-1])
@@ -61,3 +59,17 @@ for (i in 1:7) {
 }
 country <- as.vector(data[,1])
 rownames(mean_correct_mat) <- country
+
+##Q3 c.
+v_1 <- as.vector(diag(cov_mat))
+v_1 <- diag(v_1)
+v_1 <- solve(v_1)
+scale_dist <- matrix(0, nrow=nrow(mean_correct_mat))
+rownames(scale_dist) <- country
+colnames(scale_dist) <- "Scaled Distance"
+for (i in 1:nrow(mean_correct_mat)) {
+  scale_dist[i] <- t(as.matrix(mean_correct_mat[i,])) %*% v_1 %*% (as.matrix(mean_correct_mat[i,]))
+}
+
+sort(scale_dist, decreasing=TRUE)[1:5]
+scale_dist[which(scale_dist > 11.3), ]
