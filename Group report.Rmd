@@ -1,0 +1,196 @@
+---
+title: "Multivariate Statistical Methods"
+subtitle: "Assignment 1. Examining Multivariate Data"
+author: "Ahmet Hakan Akdeve(ahmak554), Jooyoung Lee(joole336), Weng Hang Wong(wonwo535), Zhixuan Duan(zhidu838)"
+date: '2019 11 23 '
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 1.
+
+a) Means and standard deviations of 100m, 200m, 400m, 800m, 1500m, 3000m, and marathon records are calculated as below.
+
+```{r, echo=FALSE}
+#importing data
+data <- read.delim(file="C:/Users/Young/Documents/Multivariate/732A97_HT2019_Materials/T1-9.dat", sep="\t", header=FALSE)
+colnames(data)<-c("Country","100m","200m","400m","800m","1500m","3000m","Marathon")
+
+##Q1. a
+charac <- data.frame(variable = as.numeric(), mean=as.numeric(), std_dev=as.numeric(), stringsAsFactors = FALSE)
+for (i in 2:length(data)) {
+  mean_v <- mean(data[[i]])
+  std_dev_v <- sd(data[[i]])
+  charac <- rbind(charac, data.frame(variable = colnames(data)[i], mean=mean_v, std_dev=std_dev_v))
+}
+charac
+```
+
+b)
+
+# Question 2.
+
+a) Covariance and correlation matrices are followings:
+
+```{r, echo=FALSE}
+data_mat <- as.matrix(data[,-1])
+for (i in 1:7) {
+  colnames(data_mat)[i] <- paste("V", i, sep='')
+}
+mean_vect <- as.vector(charac[,2])
+mean_mat <- matrix(0, ncol=7, nrow=nrow(data_mat))
+for (i in 1:nrow(data_mat)) {
+  mean_mat[i,] <- mean_vect
+}
+mean_correct_mat <- data_mat - mean_mat
+cov_mat<-cov(data[,-1])
+cor_mat<-cor(data[,-1])
+print('Covariance Matrix: ')
+round(cov_mat, digits = 3)
+print("Coorrelation Matrix: ")
+round(cor_mat, digits = 3)
+```
+
+ The elements in the matrices are rounded to three decimal places. It is possible to observe that both covariance and correlation matrices are symmetric matrices.
+
+b) Extreme values exist in every scatterplot.   
+
+```{r, echo=FALSE}
+pairs(data[,-1],pch=19,upper.panel = NULL, main = "Comparing Variables in Pairs") 
+```
+
+c) Chernoff face diagram and pairwise correlation plot can be used to describe multivariate data.
+
+```{r, echo=FALSE}
+#install.packages("aplpack")
+library(aplpack)
+faces(data[,-1],labels = data[,1])
+
+#Pairwise correlation between the variables. Plot.
+#install.packages("corrplot")
+library(corrplot)
+corrplot(cor_mat)
+```
+
+ In Chernoff face diagram, COK and SAM are clearly deviated from the other ones. The Size of faces and hair design are different from most of the other countries. Pairwise correlation plot shows all variables have positive correlation to the other variables. However in most cases, correlation coefficient decreases as the difference in race length increases.
+ 
+# Question 3.
+
+a) Mean-corrected data is used to produce the following plots.
+
+```{r, echo= FALSE}
+mean_correct_mat2<-as.data.frame(mean_correct_mat)
+mean_correct_mat2$country<-data$Country
+rownames(mean_correct_mat2)<-data[,1]
+colnames(mean_correct_mat2)<-c(colnames(data[,-1]),"country")
+
+#With Loop. Use this one!
+par(mfrow=c(3,3))
+for(i in 1:ncol(mean_correct_mat2[,-8])){
+ a<-plot(x=1:nrow(mean_correct_mat2),y=mean_correct_mat2[,i],
+         xlab = "Country",ylab=colnames(mean_correct_mat2)[i])
+  text(1:nrow(mean_correct_mat2), mean_correct_mat2[,i], labels=mean_correct_mat2$country, cex= 0.7, pos=1)
+  print(a)
+}
+
+```
+
+ Extreme observations are defined to be the ones that are deviated a lot from 0, so that the actual value is greatly different from the mean value of the variable. In general, COK, SAM and PNG are likely to be considered as extreme countreis.
+ 
+b) By using squared Euclidean distance, following countries are turend out to be the most extreme countreis; they have the longest distance.
+
+```{r, echo=FALSE}
+dis <- (diag(mean_correct_mat %*% t(mean_correct_mat))^(1/2))
+Eulidean_dis <- matrix(dis)
+row.names(Eulidean_dis) <- data[,1]
+extreme_dis <- Eulidean_dis[order(Eulidean_dis, decreasing = TRUE)[1:5],]
+print(extreme_dis)
+
+eulidean_extreme<-sort(dis, decreasing = TRUE)[1:5]
+```
+
+c) According to the scaled independent distance, countries below are the most extreme countreis.
+
+```{r, echo=FALSE}
+v_1 <- as.vector(diag(cov_mat))
+v_1 <- diag(v_1)
+v_1 <- solve(v_1)
+scale_dist <- matrix(0, nrow=nrow(mean_correct_mat))
+rownames(scale_dist) <- country
+colnames(scale_dist) <- "Scaled Distance"
+for (i in 1:nrow(mean_correct_mat)) {
+  scale_dist[i] <- t(as.matrix(mean_correct_mat[i,])) %*% v_1 %*% (as.matrix(mean_correct_mat[i,]))
+}
+scale_extreme <- scale_dist[order(scale_dist, decreasing = TRUE)[1:5],]
+scale_extreme
+```
+
+ The last two countries are different from unnormalized analysis. Before the distance is normalized, the result was easily dominated by few variables. However, by using inverse diagonal matrix of variance, it is possible to get the extreme values based on the same scale.
+ 
+d) The solution can be given by using the in-built R-function "mahalanobis". However, matrix multiplication is utilized to obtain the following result:
+
+```{r, echo=FALSE}
+d2values<-vector()
+for(i in 1:nrow(data)){
+  d2values[i]<-t(mean_correct_mat[i,])%*%solve(cov_mat)%*%mean_correct_mat[i,]
+}
+d2frame<-data.frame("Country"=data$Country,d2values)
+d2frame<-d2frame[order(d2values,decreasing = TRUE),]
+head(d2frame)[1:5,]
+
+mat_2 <-  matrix(d2values)
+row.names(mat_2) <- data[,1]
+d2_extreme <- mat_2[order(mat_2, decreasing = TRUE)[1:5],]
+```
+ 
+e) 
+
+ Each method used in b-d always includes SAM, PNG and COK as three of five observations that are most deviated from the mean. However, the other two are different for each method. Distances are measured as a deviation from the mean, as a scale-independent deviation from the mean, and as a deviation from the mean that are scale-independent but relationship among variables are considered. In all methods, SAM, PNG, and COK are considered as extreme observations; it will be safe to consider them as extreme outlier countries.
+ 
+ The following plot shows the distance when each method is utilized for detecting extremes. Except COK, PNG and SAM, all other countries are defined to be extreme only once. In case of Sweden, Euclidean distance is not appeared on the group because it is almost the same as mahalabonis distance that the red point is hidden behind the green point.
+
+```{r, echo=FALSE}
+swe_frame<-data.frame(rep("SWE",3),c(Eulidean_dis["SWE",][[1]],scale_dist["SWE",],d2frame["49",2]),
+                      c("sq_dist","extreme_dis","mahal_dis"))
+colnames(swe_frame)<-colnames(distance_frame)        
+
+sq_dist_frame<-data.frame("Country"=names(sq_dist),"distance"=sq_dist);rownames(sq_dist_frame)<-1:nrow(sq_dist_frame)
+extreme_dis_frame<-data.frame("Country"=names(extreme_dis),"distance"=extreme_dis);rownames(extreme_dis_frame)<-1:nrow(sq_dist_frame)
+mah_frame<-as.data.frame(d2frame[1:5,]);rownames(mah_frame)<-1:5;colnames(mah_frame)<-c("Country","distance")
+dist_names<-c(rep("sq_dist",5),rep("extreme_dis",5),rep("mahal_dis",5))
+
+distance_frame<-data.frame(rbind(sq_dist_frame,extreme_dis_frame,mah_frame),dist_names)
+distance_frame<-rbind(distance_frame,swe_frame)
+
+ggplot(distance_frame,aes(x=Country,y=distance,color=dist_names))+geom_point(size=3)+theme_bw()+
+  theme(legend.title = element_blank())+ylab("Distance")
+```
+
+```{r, echo=FALSE}
+library(RMaCzek)
+
+#euli_dis_czek
+euli_dist <- czek_matrix(Eulidean_dis)
+plot.czek_matrix(euli_dist)
+
+#scale_dis_czek
+sca_dist <- czek_matrix(scale_dist)
+plot.czek_matrix(sca_dist)
+
+#d2_dis_czek
+d2_dis <- czek_matrix(mat_2)
+plot.czek_matrix(d2_dis)
+```
+ 
+ Above plots are Czekanowski’s diagram, which shows the similarity between each variables. Bigger dot placed between two countries means there is a big similarity between them. Each diagram represents the result based on Euclidean distance, scale-independent distance and mahalabonis distance respectively.
+ 
+ For each method, extreme values tend to not have dot as a relationship between all another countries. But it cannot be said that they do not have any similarity with other countries, because not all countries are appeared in axis. 
+ 
+ 
+ 
+ 
+ 
+#################### now i need modified code for 1b. explane why not all countreis are appeared in axis for 3e. attach appendix. check existence of typo. THEN DONE!
