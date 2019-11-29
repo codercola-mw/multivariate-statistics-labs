@@ -255,13 +255,26 @@ CI45
 list("Epoch1-Epoch2"=CI12,"Epoch1-Epoch3"=CI13,"Epoch1-Epoch4"=CI14,"Epoch1-Epoch5"=CI15,"Epoch2-Epoch3"=CI23,
      "Epoch2-Epoch4"=CI24,"Epoch2-Epoch5"=CI25,"Epoch3-Epoch4"=CI34,"Epoch3-Epoch5"=CI35,"Epoch4-Epoch5"=CI45)
 
+#check if mean of residuals are zero
+tmp1 <- manova(cbind(mb, bh, bl, nh)~epoch, data= Skulls)
+res <- tmp1$residuals
 
+res_mean <- c()
+for (i in 1:4) {
+  meanval <- mean(res[,i])
+  res_mean <- append(res_mean, meanval)
+}
+res_mean
+# res_mean vector shows values extremely close to zero ---> they can be considered as zeros
 
+#see if residuals are normally distributed
+par(mfrow=c(2,2))
+for (i in 1:4) {
+  qqnorm(res[,i])
+  qqline(res[,i])
+}
 
-
-
-
-
-
-
+#The plot shows theoretical quantiles versus residual values' quantiles of the variable. More observations deviated from the line means less likelihood of being normally distributed.
+#The second and the third variables' residuals are mostly alligned on qqlines - residuals of variable 2 and 3 are normally distributed.
+#Observations of residuals on the first and the fourth variables generally follow qqlines. However, compare to the second and the third variable, residual observations are deviated from qqlines, especially as they moves away from the mean 0.
 
