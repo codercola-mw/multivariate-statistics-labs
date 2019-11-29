@@ -90,7 +90,7 @@ plot(tmp,type = "l")
 points(x=190,y=275,col="red") #Same conclusion as before, the dot is in the confidence region and the H0 can not be rejected.
 
 ########-------B)
-#T2 confidence interval. Formula from Page 2.25
+#T2 confidence interval. Formula from Page 225
 mu1_vector<-c(1,0)
 the_means
 covs
@@ -161,4 +161,107 @@ tmp2<-Manova(data=skulls[,-1],group = skulls[,1])
 summary(tmp2) #P-value almost. Reject H0. There are differences between the mean vectors.
 
 ########-------3)
+#Split data in 5
+levels(skulls$epoch)
+ep<-5
+p<-ncol(skulls[,-1])
+split1<-skulls[skulls$epoch=="c4000BC",]
+split2<-skulls[skulls$epoch=="c3300BC",]
+split3<-skulls[skulls$epoch=="c1850BC",]
+split4<-skulls[skulls$epoch=="c200BC",]
+split5<-skulls[skulls$epoch=="cAD150",]
+n1<-30;n2<-30;n3<-30;n4<-30;n5<-30
+n<-150
+
+means1<-apply(split1[,-1],2,mean)
+means2<-apply(split2[,-1],2,mean)
+means3<-apply(split3[,-1],2,mean)
+means4<-apply(split4[,-1],2,mean)
+means5<-apply(split5[,-1],2,mean)
+
+S1<-cov(split1[,-1])
+S2<-cov(split2[,-1])
+S3<-cov(split3[,-1])
+S4<-cov(split4[,-1])
+S5<-cov(split5[,-1])
+
+critical<-qt(1-0.05/(p*ep*(ep-1)),df=n-ep)
+
+W <- (n1-1)*S1+(n2-1)*S2+(n3-1)*S3+(n4-1)*S4+(n5-1)*S5
+
+
+CI12<-matrix(NA,ncol=2,nrow=4);colnames(CI12)<-c("Lower","Upper")
+for(i in 1:p){
+  CI12[i,1]<-(means1[i]-means2[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n2))
+  CI12[i,2]<-(means1[i]-means2[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n2))
+}
+
+
+CI13<-matrix(NA,ncol=2,nrow=4);colnames(CI13)<-c("Lower","Upper")
+for(i in 1:p){
+  CI13[i,1]<-(means1[i]-means3[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n3))
+  CI13[i,2]<-(means1[i]-means3[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n3))
+}
+
+CI14<-matrix(NA,ncol=2,nrow=4);colnames(CI14)<-c("Lower","Upper")
+for(i in 1:p){
+  CI14[i,1]<-(means1[i]-means4[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n4))
+  CI14[i,2]<-(means1[i]-means4[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n4))
+}
+
+CI15<-matrix(NA,ncol=2,nrow=4);colnames(CI15)<-c("Lower","Upper")
+for(i in 1:p){
+  CI15[i,1]<-(means1[i]-means5[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n5))
+  CI15[i,2]<-(means1[i]-means5[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n5))
+}
+
+CI23<-matrix(NA,ncol=2,nrow=4);colnames(CI23)<-c("Lower","Upper")
+for(i in 1:p){
+  CI23[i,1]<-(means2[i]-means3[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n3))
+  CI23[i,2]<-(means2[i]-means3[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n3))
+}
+
+CI24<-matrix(NA,ncol=2,nrow=4);colnames(CI24)<-c("Lower","Upper")
+for(i in 1:p){
+  CI24[i,1]<-(means2[i]-means4[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n4))
+  CI24[i,2]<-(means2[i]-means4[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n4))
+}
+
+CI25<-matrix(NA,ncol=2,nrow=4);colnames(CI25)<-c("Lower","Upper")
+for(i in 1:p){
+  CI25[i,1]<-(means2[i]-means5[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n5))
+  CI25[i,2]<-(means2[i]-means5[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n5))
+}
+
+CI34<-matrix(NA,ncol=2,nrow=4);colnames(CI34)<-c("Lower","Upper")
+for(i in 1:p){
+  CI34[i,1]<-(means3[i]-means4[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n3+1/n4))
+  CI34[i,2]<-(means3[i]-means4[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n3+1/n4))
+}
+
+CI35<-matrix(NA,ncol=2,nrow=4);colnames(CI35)<-c("Lower","Upper")
+for(i in 1:p){
+  CI35[i,1]<-(means3[i]-means5[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n3+1/n5))
+  CI35[i,2]<-(means3[i]-means5[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n3+1/n5))
+}
+
+CI45<-matrix(NA,ncol=2,nrow=4);colnames(CI45)<-c("Lower","Upper")
+for(i in 1:p){
+  CI45[i,1]<-(means4[i]-means5[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n4+1/n5))
+  CI45[i,2]<-(means4[i]-means5[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n4+1/n5))
+}
+CI45
+
+list("Epoch1-Epoch2"=CI12,"Epoch1-Epoch3"=CI13,"Epoch1-Epoch4"=CI14,"Epoch1-Epoch5"=CI15,"Epoch2-Epoch3"=CI23,
+     "Epoch2-Epoch4"=CI24,"Epoch2-Epoch5"=CI25,"Epoch3-Epoch4"=CI34,"Epoch3-Epoch5"=CI35,"Epoch4-Epoch5"=CI45)
+
+
+
+
+
+
+
+
+
+
 
