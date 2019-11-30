@@ -163,10 +163,13 @@ corrplot(cor(skulls[,-1])) #Low correlations between the variables
 library(MVTests)
 my_manova<-Manova(data=skulls[,-1],group = skulls[,1])
 summary(my_manova) #P-value almost. Reject H0. There are differences between the mean vectors.
+my_tmp<-summary(my_manova)
+
+kable(my_manova[-6])
 
 ########-------3)
 #Split data in 5
-levels(skulls$epoch)
+
 ep<-5
 p<-ncol(skulls[,-1])
 split1<-skulls[skulls$epoch=="c4000BC",]
@@ -194,67 +197,67 @@ critical<-qt(1-0.05/(p*ep*(ep-1)),df=n-ep)
 W <- (n1-1)*S1+(n2-1)*S2+(n3-1)*S3+(n4-1)*S4+(n5-1)*S5
 
 
-CI12<-matrix(NA,ncol=2,nrow=4);colnames(CI12)<-c("Lower","Upper")
+CI12<-matrix(NA,ncol=2,nrow=4);colnames(CI12)<-c("Lower","Upper");rownames(CI12)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI12[i,1]<-(means1[i]-means2[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n2))
   CI12[i,2]<-(means1[i]-means2[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n2))
 }
 
 
-CI13<-matrix(NA,ncol=2,nrow=4);colnames(CI13)<-c("Lower","Upper")
+CI13<-matrix(NA,ncol=2,nrow=4);colnames(CI13)<-c("Lower","Upper");rownames(CI13)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI13[i,1]<-(means1[i]-means3[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n3))
   CI13[i,2]<-(means1[i]-means3[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n3))
 }
 
-CI14<-matrix(NA,ncol=2,nrow=4);colnames(CI14)<-c("Lower","Upper")
+CI14<-matrix(NA,ncol=2,nrow=4);colnames(CI14)<-c("Lower","Upper");rownames(CI14)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI14[i,1]<-(means1[i]-means4[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n4))
   CI14[i,2]<-(means1[i]-means4[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n4))
 }
 
-CI15<-matrix(NA,ncol=2,nrow=4);colnames(CI15)<-c("Lower","Upper")
+CI15<-matrix(NA,ncol=2,nrow=4);colnames(CI15)<-c("Lower","Upper");rownames(CI15)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI15[i,1]<-(means1[i]-means5[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n5))
   CI15[i,2]<-(means1[i]-means5[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n5))
 }
 
-CI23<-matrix(NA,ncol=2,nrow=4);colnames(CI23)<-c("Lower","Upper")
+CI23<-matrix(NA,ncol=2,nrow=4);colnames(CI23)<-c("Lower","Upper");rownames(CI23)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI23[i,1]<-(means2[i]-means3[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n3))
   CI23[i,2]<-(means2[i]-means3[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n3))
 }
 
-CI24<-matrix(NA,ncol=2,nrow=4);colnames(CI24)<-c("Lower","Upper")
+CI24<-matrix(NA,ncol=2,nrow=4);colnames(CI24)<-c("Lower","Upper");rownames(CI24)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI24[i,1]<-(means2[i]-means4[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n4))
   CI24[i,2]<-(means2[i]-means4[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n4))
 }
 
-CI25<-matrix(NA,ncol=2,nrow=4);colnames(CI25)<-c("Lower","Upper")
+CI25<-matrix(NA,ncol=2,nrow=4);colnames(CI25)<-c("Lower","Upper");rownames(CI25)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI25[i,1]<-(means2[i]-means5[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n5))
   CI25[i,2]<-(means2[i]-means5[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n5))
 }
 
-CI34<-matrix(NA,ncol=2,nrow=4);colnames(CI34)<-c("Lower","Upper")
+CI34<-matrix(NA,ncol=2,nrow=4);colnames(CI34)<-c("Lower","Upper");rownames(CI34)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI34[i,1]<-(means3[i]-means4[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n3+1/n4))
   CI34[i,2]<-(means3[i]-means4[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n3+1/n4))
 }
 
-CI35<-matrix(NA,ncol=2,nrow=4);colnames(CI35)<-c("Lower","Upper")
+CI35<-matrix(NA,ncol=2,nrow=4);colnames(CI35)<-c("Lower","Upper");rownames(CI35)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI35[i,1]<-(means3[i]-means5[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n3+1/n5))
   CI35[i,2]<-(means3[i]-means5[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n3+1/n5))
 }
 
-CI45<-matrix(NA,ncol=2,nrow=4);colnames(CI45)<-c("Lower","Upper")
+CI45<-matrix(NA,ncol=2,nrow=4);colnames(CI45)<-c("Lower","Upper");rownames(CI45)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI45[i,1]<-(means4[i]-means5[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n4+1/n5))
   CI45[i,2]<-(means4[i]-means5[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n4+1/n5))
 }
-CI45
+
 
 list("Epoch1-Epoch2"=CI12,"Epoch1-Epoch3"=CI13,"Epoch1-Epoch4"=CI14,"Epoch1-Epoch5"=CI15,"Epoch2-Epoch3"=CI23,
      "Epoch2-Epoch4"=CI24,"Epoch2-Epoch5"=CI25,"Epoch3-Epoch4"=CI34,"Epoch3-Epoch5"=CI35,"Epoch4-Epoch5"=CI45)
@@ -269,6 +272,8 @@ for (i in 1:4) {
   meanval <- mean(res[,i])
   res_mean <- append(res_mean, meanval)
 }
+res_mean<-as.matrix(res_mean)
+rownames(res_mean)<-c("mb","bh","bl","nh");colnames(res_mean)<-"Residual mean"
 res_mean
 # res_mean vector shows values extremely close to zero ---> they can be considered as zeros
 
