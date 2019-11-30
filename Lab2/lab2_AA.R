@@ -34,7 +34,7 @@ d2values<-vector()
 for(i in 1:nrow(data)){
   d2values[i]<-t(mean_correct_mat[i,])%*%solve(cov_mat)%*%mean_correct_mat[i,]
 }
-d2values
+
 
 #Outlier detection using mahalanobis distance
 frame_mah<-data.frame("Country"=my_data$Country,d2values)
@@ -76,8 +76,11 @@ mu1<-190
 mu2<-275
 n<-nrow(bird_data)
 tmp_vector<-c(the_means[1]-mu1,the_means[2]-mu2)
-n*t(tmp_vector)%*%solve(covs)%*%tmp_vector
+theres<-matrix(c(n*t(tmp_vector)%*%solve(covs)%*%tmp_vector,2*(n-1)/(n-2)*qf(0.95,ncol(bird_data),n-2)),ncol=1)
+colnames(theres)<-"Value";rownames(theres)<-c("Test value", "Crit value")
+theres
 
+n*t(tmp_vector)%*%solve(covs)%*%tmp_vector
 2*(n-1)/(n-2)*qf(0.95,ncol(bird_data),n-2) #The F-value from page 222
 
 #Since the Test-statistic is lower than the critical F-value the new mean values is in the confidence region and is therefore plausible.
@@ -85,15 +88,15 @@ n*t(tmp_vector)%*%solve(covs)%*%tmp_vector
 library(ellipse)
 
 #Plot the ellipse. Should be done without the R-function?
-tmp<-ellipse(covs/n,centre = the_means,level = 0.95)
+tmp<-ellipse::ellipse(covs/n,centre = the_means,level = 0.95)
 plot(tmp,type = "l")
 points(x=190,y=275,col="red") #Same conclusion as before, the dot is in the confidence region and the H0 can not be rejected.
 
 ########-------B)
 #T2 confidence interval. Formula from Page 225
 mu1_vector<-c(1,0)
-the_means
-covs
+#the_means
+#covs
 n_col<-ncol(bird_data)
 n<-nrow(bird_data)
 crit_value<-sqrt((n_col*(n-1))*qf(0.95,n_col,n-n_col)/(n-n_col))
@@ -107,6 +110,7 @@ t2_res[2,1]<-t(mu2_vector)%*%the_means-crit_value*sqrt((t(mu2_vector)%*%covs%*%m
 t2_res[2,2]<-t(mu2_vector)%*%the_means+crit_value*sqrt((t(mu2_vector)%*%covs%*%mu2_vector)/n)
 t2_res
 
+library(knitr)
 
 #Bonferroni. Formula from page 234. Critical value is the only difference from the formula above.
 bon_res<--matrix(NA,ncol = 2,nrow = 2);colnames(bon_res)<-c("Lower","Upper");rownames(bon_res)<-c("Tail","Wing")
@@ -157,8 +161,8 @@ corrplot(cor(skulls[,-1])) #Low correlations between the variables
 ########-------B)
 #install.packages("MVTests")
 library(MVTests)
-tmp2<-Manova(data=skulls[,-1],group = skulls[,1])
-summary(tmp2) #P-value almost. Reject H0. There are differences between the mean vectors.
+my_manova<-Manova(data=skulls[,-1],group = skulls[,1])
+summary(my_manova) #P-value almost. Reject H0. There are differences between the mean vectors.
 
 ########-------3)
 #Split data in 5
@@ -256,7 +260,28 @@ list("Epoch1-Epoch2"=CI12,"Epoch1-Epoch3"=CI13,"Epoch1-Epoch4"=CI14,"Epoch1-Epoc
      "Epoch2-Epoch4"=CI24,"Epoch2-Epoch5"=CI25,"Epoch3-Epoch4"=CI34,"Epoch3-Epoch5"=CI35,"Epoch4-Epoch5"=CI45)
 
 
+#check if mean of residuals are zero
+tmp1 <- manova(cbind(mb, bh, bl, nh)~epoch, data= Skulls)
+res <- tmp1$residuals
 
+res_mean <- c()
+for (i in 1:4) {
+  meanval <- mean(res[,i])
+  res_mean <- append(res_mean, meanval)
+}
+res_mean
+# res_mean vector shows values extremely close to zero ---> they can be considered as zeros
+
+#see if residuals are normally distributed
+par(mfrow=c(2,2))
+for (i in 1:4) {
+  qqnorm(res[,i])
+  qqline(res[,i])
+}
+
+#The plot shows theoretical quantiles versus residual values' quantiles of the variable. More observations deviated from the line means less likelihood of being normally distributed.
+#The second and the third variables' residuals are mostly alligned on qqlines - residuals of variable 2 and 3 are normally distributed.
+#Observations of residuals on the first and the fourth variables generally follow qqlines. However, compare to the second and the third variable, residual observations are deviated from qqlines, especially as they moves away from the mean 0.
 
 
 
