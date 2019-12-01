@@ -2,7 +2,7 @@
 title: "Multivariate Statistical Methods"
 subtitle: "Assignment 2. Inference about mean vectors"
 author: "Ahmet Hakan Akdeve(ahmak554), Jooyoung Lee(joole336), Weng Hang Wong(wonwo535), Zhixuan Duan(zhidu838)"
-date: '2019 11 31 '
+date: '2019 12 01 '
 output: pdf_document
 ---
 
@@ -51,12 +51,13 @@ Outlier detection using mahalanobis distances.
 
 ```{r echo=FALSE}
 frame_mah<-data.frame("Country"=my_data$Country,d2values)
-frame_mah$pvalues<-1-pchisq(frame_mah$d2values,df=2)
+frame_mah$pvalues<-1-pchisq(frame_mah$d2values,df=1)
 kable(frame_mah[frame_mah$pvalues<0.01,],caption="Outliers") #Outliers
 ```
 
 The table shows 9 countries that could be assumed as outliers. Most countries that were classified as outliers with different distance functions from previous lab can be found on this list such as "COK".
 
+\pagebreak
 
 ```{r echo=FALSE}
 frame_mah$adj_pvalues<-p.adjust(frame_mah$pvalues,method = "bonferroni")
@@ -72,6 +73,7 @@ Bonferroni correction takes each value and multiply by the number of observation
 
 Euclidean distance assumes data to be Gaussian and treat each feature equally. Mahalanobis distance measures the correlation between variable and this can lead to different conclusions about the features.
 
+\pagebreak
 
 # QUESTION 2
 
@@ -115,7 +117,6 @@ points(x=190,y=275,col="red") #Same conclusion as before, the dot is in the conf
 
 In the table above presents the results of the calculated test statistics and the critical value. Since the test-statisctic is lower than the critical F-value means that the new mean values is in the confidence region and is therefore plausible values. That conclusion is also confirmed by the ellipse above which is representing the confidence region. The highlighted red circle is the tested mean vector and it is within the confidence region which should mean that that values are plausible.
 
-\pagebreak
 
 ### B)
 
@@ -381,7 +382,7 @@ for(i in 1:nrow(data)){
   d2values[i]<-t(mean_correct_mat[i,])%*%solve(cov_mat)%*%mean_correct_mat[i,]
 }
 frame_mah<-data.frame("Country"=my_data$Country,d2values)
-frame_mah$pvalues<-1-pchisq(frame_mah$d2values,df=2)
+frame_mah$pvalues<-1-pchisq(frame_mah$d2values,df=1)
 kable(frame_mah[frame_mah$pvalues<0.01,],caption="Outliers") #Outliers
 
 frame_mah$adj_pvalues<-p.adjust(frame_mah$pvalues,method = "bonferroni")
