@@ -27,7 +27,7 @@ fviz_contrib(my_PCA,choice = "var",axes = 1) #Contribution to PC1
 #All variables contributes equally to dimension 1
 
 fviz_contrib(my_PCA,choice = "var",axes = 2) #Contribution to PC2
-#This component should be interpreted as IN THE QUESTION! 
+#This component should be interpreted as IN THE QUESTION
 
 ###### D.
 scores_frame<-data.frame("Country"=my_data$Country,"Scores"=my_PCA$x[,1])
