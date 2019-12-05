@@ -7,9 +7,9 @@ data <- as.data.frame(data[,-1])
 # Assignment 1
 
 ##a. Obtaining correlation matrix R, eigenvalues and eigenvectors
-R <- cor(data[,-1])
+R <- cor(data)
 eigen(R)
 eigenval <- eigen(R)$values
 eigenvect <- eigen(R)$vectors
 
-##b.    
+##b. 
