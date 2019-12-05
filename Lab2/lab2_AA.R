@@ -34,7 +34,7 @@ d2values<-vector()
 for(i in 1:nrow(data)){
   d2values[i]<-t(mean_correct_mat[i,])%*%solve(cov_mat)%*%mean_correct_mat[i,]
 }
-d2values
+
 
 #Outlier detection using mahalanobis distance
 frame_mah<-data.frame("Country"=my_data$Country,d2values)
@@ -76,8 +76,11 @@ mu1<-190
 mu2<-275
 n<-nrow(bird_data)
 tmp_vector<-c(the_means[1]-mu1,the_means[2]-mu2)
-n*t(tmp_vector)%*%solve(covs)%*%tmp_vector
+theres<-matrix(c(n*t(tmp_vector)%*%solve(covs)%*%tmp_vector,2*(n-1)/(n-2)*qf(0.95,ncol(bird_data),n-2)),ncol=1)
+colnames(theres)<-"Value";rownames(theres)<-c("Test value", "Crit value")
+theres
 
+n*t(tmp_vector)%*%solve(covs)%*%tmp_vector
 2*(n-1)/(n-2)*qf(0.95,ncol(bird_data),n-2) #The F-value from page 222
 
 #Since the Test-statistic is lower than the critical F-value the new mean values is in the confidence region and is therefore plausible.
@@ -85,15 +88,15 @@ n*t(tmp_vector)%*%solve(covs)%*%tmp_vector
 library(ellipse)
 
 #Plot the ellipse. Should be done without the R-function?
-tmp<-ellipse(covs/n,centre = the_means,level = 0.95)
+tmp<-ellipse::ellipse(covs/n,centre = the_means,level = 0.95)
 plot(tmp,type = "l")
 points(x=190,y=275,col="red") #Same conclusion as before, the dot is in the confidence region and the H0 can not be rejected.
 
 ########-------B)
 #T2 confidence interval. Formula from Page 225
 mu1_vector<-c(1,0)
-the_means
-covs
+#the_means
+#covs
 n_col<-ncol(bird_data)
 n<-nrow(bird_data)
 crit_value<-sqrt((n_col*(n-1))*qf(0.95,n_col,n-n_col)/(n-n_col))
@@ -107,6 +110,7 @@ t2_res[2,1]<-t(mu2_vector)%*%the_means-crit_value*sqrt((t(mu2_vector)%*%covs%*%m
 t2_res[2,2]<-t(mu2_vector)%*%the_means+crit_value*sqrt((t(mu2_vector)%*%covs%*%mu2_vector)/n)
 t2_res
 
+library(knitr)
 
 #Bonferroni. Formula from page 234. Critical value is the only difference from the formula above.
 bon_res<--matrix(NA,ncol = 2,nrow = 2);colnames(bon_res)<-c("Lower","Upper");rownames(bon_res)<-c("Tail","Wing")
@@ -157,12 +161,15 @@ corrplot(cor(skulls[,-1])) #Low correlations between the variables
 ########-------B)
 #install.packages("MVTests")
 library(MVTests)
-tmp2<-Manova(data=skulls[,-1],group = skulls[,1])
-summary(tmp2) #P-value almost. Reject H0. There are differences between the mean vectors.
+my_manova<-Manova(data=skulls[,-1],group = skulls[,1])
+summary(my_manova) #P-value almost. Reject H0. There are differences between the mean vectors.
+my_tmp<-summary(my_manova)
+
+kable(my_manova[-6])
 
 ########-------3)
 #Split data in 5
-levels(skulls$epoch)
+
 ep<-5
 p<-ncol(skulls[,-1])
 split1<-skulls[skulls$epoch=="c4000BC",]
@@ -190,70 +197,71 @@ critical<-qt(1-0.05/(p*ep*(ep-1)),df=n-ep)
 W <- (n1-1)*S1+(n2-1)*S2+(n3-1)*S3+(n4-1)*S4+(n5-1)*S5
 
 
-CI12<-matrix(NA,ncol=2,nrow=4);colnames(CI12)<-c("Lower","Upper")
+CI12<-matrix(NA,ncol=2,nrow=4);colnames(CI12)<-c("Lower","Upper");rownames(CI12)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI12[i,1]<-(means1[i]-means2[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n2))
   CI12[i,2]<-(means1[i]-means2[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n2))
 }
 
 
-CI13<-matrix(NA,ncol=2,nrow=4);colnames(CI13)<-c("Lower","Upper")
+CI13<-matrix(NA,ncol=2,nrow=4);colnames(CI13)<-c("Lower","Upper");rownames(CI13)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI13[i,1]<-(means1[i]-means3[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n3))
   CI13[i,2]<-(means1[i]-means3[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n3))
 }
 
-CI14<-matrix(NA,ncol=2,nrow=4);colnames(CI14)<-c("Lower","Upper")
+CI14<-matrix(NA,ncol=2,nrow=4);colnames(CI14)<-c("Lower","Upper");rownames(CI14)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI14[i,1]<-(means1[i]-means4[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n4))
   CI14[i,2]<-(means1[i]-means4[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n4))
 }
 
-CI15<-matrix(NA,ncol=2,nrow=4);colnames(CI15)<-c("Lower","Upper")
+CI15<-matrix(NA,ncol=2,nrow=4);colnames(CI15)<-c("Lower","Upper");rownames(CI15)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI15[i,1]<-(means1[i]-means5[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n5))
   CI15[i,2]<-(means1[i]-means5[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n1+1/n5))
 }
 
-CI23<-matrix(NA,ncol=2,nrow=4);colnames(CI23)<-c("Lower","Upper")
+CI23<-matrix(NA,ncol=2,nrow=4);colnames(CI23)<-c("Lower","Upper");rownames(CI23)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI23[i,1]<-(means2[i]-means3[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n3))
   CI23[i,2]<-(means2[i]-means3[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n3))
 }
 
-CI24<-matrix(NA,ncol=2,nrow=4);colnames(CI24)<-c("Lower","Upper")
+CI24<-matrix(NA,ncol=2,nrow=4);colnames(CI24)<-c("Lower","Upper");rownames(CI24)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI24[i,1]<-(means2[i]-means4[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n4))
   CI24[i,2]<-(means2[i]-means4[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n4))
 }
 
-CI25<-matrix(NA,ncol=2,nrow=4);colnames(CI25)<-c("Lower","Upper")
+CI25<-matrix(NA,ncol=2,nrow=4);colnames(CI25)<-c("Lower","Upper");rownames(CI25)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI25[i,1]<-(means2[i]-means5[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n5))
   CI25[i,2]<-(means2[i]-means5[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n2+1/n5))
 }
 
-CI34<-matrix(NA,ncol=2,nrow=4);colnames(CI34)<-c("Lower","Upper")
+CI34<-matrix(NA,ncol=2,nrow=4);colnames(CI34)<-c("Lower","Upper");rownames(CI34)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI34[i,1]<-(means3[i]-means4[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n3+1/n4))
   CI34[i,2]<-(means3[i]-means4[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n3+1/n4))
 }
 
-CI35<-matrix(NA,ncol=2,nrow=4);colnames(CI35)<-c("Lower","Upper")
+CI35<-matrix(NA,ncol=2,nrow=4);colnames(CI35)<-c("Lower","Upper");rownames(CI35)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI35[i,1]<-(means3[i]-means5[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n3+1/n5))
   CI35[i,2]<-(means3[i]-means5[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n3+1/n5))
 }
 
-CI45<-matrix(NA,ncol=2,nrow=4);colnames(CI45)<-c("Lower","Upper")
+CI45<-matrix(NA,ncol=2,nrow=4);colnames(CI45)<-c("Lower","Upper");rownames(CI45)<-c("mb","bh","bl","nh")
 for(i in 1:p){
   CI45[i,1]<-(means4[i]-means5[i])-critical*sqrt(W[i,i]/(n-ep)*(1/n4+1/n5))
   CI45[i,2]<-(means4[i]-means5[i])+critical*sqrt(W[i,i]/(n-ep)*(1/n4+1/n5))
 }
-CI45
+
 
 list("Epoch1-Epoch2"=CI12,"Epoch1-Epoch3"=CI13,"Epoch1-Epoch4"=CI14,"Epoch1-Epoch5"=CI15,"Epoch2-Epoch3"=CI23,
      "Epoch2-Epoch4"=CI24,"Epoch2-Epoch5"=CI25,"Epoch3-Epoch4"=CI34,"Epoch3-Epoch5"=CI35,"Epoch4-Epoch5"=CI45)
+
 
 #check if mean of residuals are zero
 tmp1 <- manova(cbind(mb, bh, bl, nh)~epoch, data= Skulls)
@@ -264,6 +272,8 @@ for (i in 1:4) {
   meanval <- mean(res[,i])
   res_mean <- append(res_mean, meanval)
 }
+res_mean<-as.matrix(res_mean)
+rownames(res_mean)<-c("mb","bh","bl","nh");colnames(res_mean)<-"Residual mean"
 res_mean
 # res_mean vector shows values extremely close to zero ---> they can be considered as zeros
 
@@ -277,4 +287,11 @@ for (i in 1:4) {
 #The plot shows theoretical quantiles versus residual values' quantiles of the variable. More observations deviated from the line means less likelihood of being normally distributed.
 #The second and the third variables' residuals are mostly alligned on qqlines - residuals of variable 2 and 3 are normally distributed.
 #Observations of residuals on the first and the fourth variables generally follow qqlines. However, compare to the second and the third variable, residual observations are deviated from qqlines, especially as they moves away from the mean 0.
+
+
+
+
+
+
+
 
