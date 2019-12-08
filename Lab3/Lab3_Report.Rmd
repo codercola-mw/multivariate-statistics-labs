@@ -72,4 +72,4 @@ scores_frame<-scores_frame[order(scores_frame$Scores,decreasing = TRUE),]
 head(scores_frame)
 ```
 
- The first PC shows the scores as above. Intuitive nations of athletic excellence corresponds to the ranking turned out above.
+ The first PC shows the scores as shown. Intuitive nations of athletic excellence corresponds to the ranking turned out above.
