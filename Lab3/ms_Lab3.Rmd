@@ -1,0 +1,435 @@
+---
+title: "Multivariate Statistics Lab3"
+subtitle: "Principal Component and Factor Analysis"
+author: "Ahmet Hakan Akdeve(ahmak554), Jooyoung Lee(joole336), Weng Hang Wong(wonwo535), Zhixuan Duan(zhidu838)"
+date: '2019 12 8 '
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 1
+ Correlation matrix R, its eigenvalues and eigenvectors are shown as below.
+ 
+ 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# importing data
+
+original_data <- read.delim(file="~/Desktop/Multi lab/Lab/T1-9.dat", sep="\t", header=FALSE)
+
+colnames(original_data)<-c("Country","100m","200m","400m","800m","1500m","3000m","Marathon")
+data <- original_data[,-1]
+R <- cor(data)
+eigenval <- eigen(R)$values
+eigenvect <- eigen(R)$vectors
+cat("correlation matrix: ", "\n")
+R
+cat("\n", "eigenvalues: ", "\n")
+eigenval
+cat("\n","eigenvectors: ", "\n")
+eigenvect
+```
+
+
+ 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+for (i in 1:ncol(data)) {
+  data[,i] <- ((data[,i]-mean(data[,i]))/sqrt(var(data[,i])))
+}
+SIG <- cov(data)
+SIG
+```
+
+ Covariance matrix of the standardized data is exactly the same as the correlation matrix of the original data. Therefore, the principal components(PCs) of the standardized can also be found using eigenvalues and eigenvectors of the correlation matrix, R. The first two PCs are below, that $z_i$ means standardized $i^{th}$ variable.
+ 
+ $Y_1 = -0.378z_1 -0.383z_2-0.368z_3-0.395z_4-0.389z_5-0.376z_6-0.355z_7$
+ 
+ $Y_2 = -0.407z_1 -0.414z_2-0.459z_3+0.161z_4+0.309z_5+0.423z_6+0.389z_7$
+ 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+#####I DIDN'T PUT CODE FOR CORRELATION PART
+my_PCA<-prcomp(data,scale = TRUE)
+summary(my_PCA)
+```
+
+ The proportion of variance of each principal components are above shown. The cummulative percentage of the total sample variance explained by the first two PCs are 91.95%.
+ 
+```{r, echo=FALSE}
+r1_yz = eigenvect[,1] * sqrt(eigenval[1])
+r2_yz = eigenvect[,2] * sqrt(eigenval[2])
+
+cor_matr<-rbind(r1_yz, r2_yz)
+colnames(cor_matr) <- c("z1", "z2","z3","z4","z5","z6","z7")
+
+cat("The correlation of the standardized vaiables vs components:
+    ")
+cor_matr
+
+``` 
+```{r, echo=FALSE}
+a <- sum( abs(eigenval[1]))
+b <- sum( abs(eigenval[2]))
+
+paste("cumulative precentage :", (a+b)/ sum(abs(eigenval)))
+
+```
+
+From the above eigenvalues, we can calculate the two components cumulative precentage of the total sample variance which is 0.919
+ 
+```{r, echo=FALSE, message=FALSE, warning=FALSE,fig.width=4, fig.height=3}
+library(factoextra)
+fviz_contrib(my_PCA,choice = "var",axes = 1)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,fig.width=4, fig.height=3}
+#Contribution to PC1
+#All variables contributes equally to dimension 1
+fviz_contrib(my_PCA,choice = "var",axes = 2) #Contribution to PC2
+```
+
+ On the graph related to the first PC, it is possible to find that all variables are almost equally contributing to the variation. However, on the second PC contribution graph, contribution rate differs by the distances. With the second eigenvector shown before, it is possible to predict that the short-distance race and long-distance race affect the strength of the nations in the opposite ways.
+
+```{r,echo=FALSE, fig.width=4, fig.height=3}
+scores_frame<-data.frame("Country"=original_data$Country,"Scores"=my_PCA$x[,1])
+scores_frame<-scores_frame[order(scores_frame$Scores,decreasing = TRUE),]
+head(scores_frame)
+```
+
+ The first PC shows the scores as shown. Intuitive nations of athletic excellence corresponds to the ranking turned out above.
+ 
+ 
+# QUESTION 2
+
+## Maximum Likelihood
+
+ *Covariance matrix analysis*
+
+```{r, echo=FALSE,fig.width=4, fig.height=3}
+         
+###### USING FACTANAL() HERE.
+###
+my_data <- read.delim(file="~/Desktop/Multi lab/Lab/T1-9.dat", sep="\t", header=FALSE)
+
+S_matrix<-cov.wt(my_data[,-1])
+R_matrix<-cor(my_data[,-1])
+
+my_fact<-factanal(my_data[,-1],factors=2,covmat=S_matrix,n.obs=nrow(my_data))
+my_fact
+
+cov_loads<-my_fact$loadings[,1:2]
+
+plot(cov_loads);text(cov_loads,labels=names(my_data[,-1]))
+```
+
+For factor 1: High values for long distance runs and low values for sprint runs.
+Factor 1 interpretas how good a country is good long distance runs.
+
+Factor 2: The interpretation of this factor is how good a nation is at sprint runs.
+
+
+
+*correlation matrix*
+
+```{r, echo=FALSE,fig.width=4, fig.height=3}
+my_fact_cor<-factanal(my_data[,-1],factors=2,covmat=R_matrix,n.obs=nrow(my_data))
+cor_loads<-my_fact_cor$loadings[,1:2]
+my_fact_cor
+
+plot(cor_loads);text(cor_loads,labels=names(my_data[,-1]))
+```
+
+
+From the correlation matrix ML analysis above, same result as the analysis with the covariance matrix.
+
+## Outliners Scores
+
+*Scores factor 1*
+
+
+
+From the belowed graph, we can easily spot the outliner from the factor 1 ( scores >2), which is the country of SAM.
+
+
+```{r,echo=FALSE,fig.width=4, fig.height=3}
+
+my_fact3<-factanal(x=my_data[,-1],factors=2,scores="regression")
+
+scores<-as.data.frame(my_fact3$scores[,c(1:2)])
+scores$index<-1:54
+plot(y=scores[,1],x=scores$index,col="red")
+scores$index[which(scores[,1]>2)]
+my_data[46,1] #Outlier from scores for factor 1. SAM
+```
+
+*Scores factor 2*
+
+From the below graph, we want to spot the outliner from the factor 2 (scores >1.5), so we have the outliners of COK and KORN 
+
+```{r,echo=FALSE,fig.width=4, fig.height=3}  
+plot(y=scores[,2],x=scores$index,col="red")
+scores$index[which(scores[,2]>1.5)]
+my_data[c(11,31),1] #Outlier from scores for factor 2. COK and KORN
+```
+
+## Principle Component Analysis
+
+*correlation matrix*
+
+
+```{r,echo=FALSE,fig.width=4, fig.height=3}  
+#### USING PC now. psych package. Rotation is by default "varimax"
+
+library(psych)
+
+#Using correlation matrix
+cor_fact<-principal(my_data[,-1],nfactors=2,method = "regression",n.obs = 54,scores=TRUE,oblique.scores = FALSE)
+cor_fact
+
+```
+
+
+
+```{r,echo=FALSE,fig.width=4, fig.height=3} 
+cor_fact$loadings[,1]
+plot(cor_fact$loadings) #Same result as with factanal()
+```
+
+
+
+Using PCA from the belowed graph, scores plot and outliers from that plot for FACTOR 1 (scores>2), Outliers seems to be PNG and SAM. 
+
+```{r,echo=FALSE,fig.width=4, fig.height=3} 
+#
+
+scores<-as.data.frame(cor_fact$scores[,c(1:2)])
+scores$index<-1:54
+plot(y=scores[,1],x=scores$index,col="red")
+scores$index[which(scores[,1]>2)]
+my_data[c(40,46),1] #
+```
+
+From the belowed graph, the outliner that plotted for Factor2 ( scores>2), which seems to be COK and KORN.
+
+```{r,echo=FALSE,fig.width=4, fig.height=3} 
+#Scores plot and outliers from that plot for FACTOR 2
+
+scores<-as.data.frame(cor_fact$scores[,c(1:2)])
+scores$index<-1:54
+plot(y=scores[,2],x=scores$index,col="red")
+scores$index[which(scores[,2]>2)]
+my_data[c(11,31),1] #Outliers seems to be COK and KORN
+```
+
+*covaiance matrix*
+
+
+Form factor 1 Marathon load very highly on this factor. Form factor 2 "800m" load higly.
+
+
+```{r,echo=FALSE,fig.width=4, fig.height=3} 
+#USING COVARIANCE MATRIX
+
+cov_fact<-principal(my_data[,-1],nfactors=2,method = "regression",n.obs = 54,scores=TRUE,covar = TRUE)
+cov_fact$loadings[,1]
+cov_fact
+```
+
+
+
+```{r,echo=FALSE,fig.width=4, fig.height=3} 
+plot(cov_fact$loadings) 
+```
+
+*Scores factor 1*
+
+The outliners seems to be COK and PNG when the scores > 2.5
+
+```{r,echo=FALSE,fig.width=4, fig.height=3} 
+#Scores plot for factor 1 
+
+scores<-as.data.frame(cov_fact$scores[,c(1:2)])
+scores$index<-1:54
+plot(y=scores[,1],x=scores$index,col="red")
+scores$index[which(scores[,1]>2.5)]
+my_data[c(11,40),1] #Outliers seems to be COK and PNG
+```
+
+*Scores factor 2*
+
+
+According to the plot, it is not easily to pinpoint which countries are outliers here. But COK, PNG and SAM has high scores values, when scores>2.
+
+```{r,echo=FALSE,fig.width=4, fig.height=3}
+#Scores plot for factor 2
+
+scores<-as.data.frame(cov_fact$scores[,c(1:2)])
+scores$index<-1:54
+plot(y=scores[,2],x=scores$index,col="red")
+scores$index[which(scores[,1]>2)]
+my_data[c(11,40,46),1] 
+
+#Hard to pinpoint which countries are outliers here. But COK, PNG and SAM has high scores values.
+
+```
+
+## Conclusion
+The result from the two methods( PCA and ML) are quite similar. 
+
+The meaning of varimax of the rotation parametier is that aims when rotating the factors, it will clarify the structure of the loading matrix.
+ 
+
+#Apprendix
+```{r,eval=FALSE}
+
+############-----------QUESTION 1----------------##############
+
+my_data <- read.delim(file="C:\\Users\\Suat\\Desktop\\Master_courses\\732A97_Multivariate\\Materials\\T1-9.dat", sep="\t", header=FALSE)
+colnames(my_data)<-c("Country","100m","200m","400m","800m","1500m","3000m","Marathon")
+
+###### A.
+
+#Correlation matrix
+R_matrix<-cor(my_data[,-1])
+#Eigenvalues and eigenvectors
+eigen(R_matrix)
+
+###### B.
+r1_yz = eigenvect[,1] * sqrt(eigenval[1])
+r2_yz = eigenvect[,2] * sqrt(eigenval[2])
+
+cor_matr<-rbind(r1_yz, r2_yz)
+colnames(cor_matr) <- c("z1", "z2","z3","z4","z5","z6","z7")
+
+cat("The correlation of the standardized vaiables vs components:
+    ")
+cor_matr
+
+a <- sum( abs(eigenval[1]))
+b <- sum( abs(eigenval[2]))
+
+paste("cumulative precentage :", (a+b)/ sum(abs(eigenval)))
+
+
+my_PCA<-prcomp(my_data[,-1],scale = TRUE)
+summary(my_PCA) #PC1 and PC2 together explains 91.9 % percent of the variation
+
+###### C.
+#install.packages("factoextra")
+library(factoextra)
+
+fviz_contrib(my_PCA,choice = "var",axes = 1) #Contribution to PC1
+#All variables contributes equally to dimension 1
+
+fviz_contrib(my_PCA,choice = "var",axes = 2) #Contribution to PC2
+#This component should be interpreted as IN THE QUESTION! 
+
+#But from PC1 values from each variable, we can see that the short distance races have negative values
+
+###### D.
+scores_frame<-data.frame("Country"=my_data$Country,"Scores"=my_PCA$x[,1])
+scores_frame<-scores_frame[order(scores_frame$Scores,decreasing = TRUE),]
+head(scores_frame) #Seems reasonable
+
+
+############-----------QUESTION 2----------------##############
+         
+###### USING FACTANAL() HERE.
+
+##### Covariance matrix
+
+S_matrix<-cov.wt(my_data[,-1])
+R_matrix<-cor(my_data[,-1])
+
+my_fact<-factanal(my_data[,-1],factors=2,covmat=S_matrix,n.obs=nrow(my_data))
+cov_loads<-my_fact$loadings[,1:2]
+
+plot(cov_loads);text(cov_loads,labels=names(my_data[,-1]))
+#For factor 1: High values for long distance runs and low values for sprint runs.
+#Factor 1 interpretas how good a country is good long distance runs.
+
+#Factor 2: The interpretation of this factor is how good a nation is at sprint runs.
+
+
+##### correlation matrix
+
+my_fact_cor<-factanal(my_data[,-1],factors=2,covmat=R_matrix,n.obs=nrow(my_data))
+cor_loads<-my_fact_cor$loadings[,1:2]
+plot(cor_loads);text(cor_loads,labels=names(my_data[,-1]))
+
+#Same result as the analysis with the covariance matrix.
+
+#Outliers. Dont know how to specify Cov or Cor matrix here when calculating scores. These function runs when covmat="NULL"
+
+my_fact3<-factanal(x=my_data[,-1],factors=2,scores="regression")
+
+scores<-as.data.frame(my_fact3$scores[,c(1:2)])
+scores$index<-1:54
+plot(y=scores[,1],x=scores$index,col="red")
+scores$index[which(scores[,1]>2)]
+my_data[46,1] #Outlier from scores for factor 1. SAM
+
+
+plot(y=scores[,2],x=scores$index,col="red")
+scores$index[which(scores[,2]>1.5)]
+my_data[c(11,31),1] #Outlier from scores for factor 2. COK and KORN
+
+  
+#### USING PC now. psych package. Rotation is by default "varimax"
+install.packages("psych")
+library(psych)
+
+#Using correlation matrix
+cor_fact<-principal(my_data[,-1],nfactors=2,method = "regression",n.obs = 54,scores=TRUE,oblique.scores = FALSE)
+cor_fact$loadings[,1]
+
+plot(cor_fact$loadings) #Same result as with factanal()
+
+#Scores plot and outliers from that plot for FACTOR 1
+
+scores<-as.data.frame(cor_fact$scores[,c(1:2)])
+scores$index<-1:54
+plot(y=scores[,1],x=scores$index,col="red")
+scores$index[which(scores[,1]>2)]
+my_data[c(40,46),1] #Outliers seems to be PNG and SAM
+
+#Scores plot and outliers from that plot for FACTOR 2
+
+scores<-as.data.frame(cor_fact$scores[,c(1:2)])
+scores$index<-1:54
+plot(y=scores[,2],x=scores$index,col="red")
+scores$index[which(scores[,2]>2)]
+my_data[c(11,31),1] #Outliers seems to be COK and KORN
+
+#USING COVARIANCE MATRIX
+
+cov_fact<-principal(my_data[,-1],nfactors=2,method = "regression",n.obs = 54,scores=TRUE,covar = TRUE)
+cov_fact$loadings[,1]
+plot(cov_fact$loadings) #For factor 1 Marathon load very highly on this factor. For factor 2 "800m" load higly.
+
+#Scores plot for factor 1 
+
+scores<-as.data.frame(cov_fact$scores[,c(1:2)])
+scores$index<-1:54
+plot(y=scores[,1],x=scores$index,col="red")
+scores$index[which(scores[,1]>2.5)]
+my_data[c(11,40),1] #Outliers seems to be COK and PNG
+
+#Scores plot for factor 2
+
+scores<-as.data.frame(cov_fact$scores[,c(1:2)])
+scores$index<-1:54
+plot(y=scores[,2],x=scores$index,col="red")
+scores$index[which(scores[,1]>2)]
+my_data[c(11,40,46),1] #Hard to pinpoint which countries are outliers here. But COK, PNG and SAM has high scores values.
+
+
+
+
+```
+ 
+ 
+ 
+ 
+ 
