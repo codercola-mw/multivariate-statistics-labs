@@ -1,0 +1,75 @@
+---
+title: "Multivariate Statistics Lab3"
+subtitle: "Principal Component and Factor Analysis"
+author: "Ahmet Hakan Akdeve(ahmak554), Jooyoung Lee(joole336), Weng Hang Wong(wonwo535), Zhixuan Duan(zhidu838)"
+date: '2019 12 8 '
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 1
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# importing data
+original_data <- read.delim("C:/Users/Jooyoung/Documents/Multivariate/Materials/T1-9.dat", sep="\t", header=FALSE)
+colnames(original_data)<-c("Country","100m","200m","400m","800m","1500m","3000m","Marathon")
+data <- original_data[,-1]
+
+R <- cor(data)
+eigenval <- eigen(R)$values
+eigenvect <- eigen(R)$vectors
+cat("correlation matrix: ", "\n")
+R
+cat("\n", "eigenvalues: ", "\n")
+eigenval
+cat("\n","eigenvectors: ", "\n")
+eigenvect
+```
+
+ Correlation matrix R, its eigenvalues and eigenvectors are shown as above.
+ 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+for (i in 1:ncol(data)) {
+  data[,i] <- ((data[,i]-mean(data[,i]))/sqrt(var(data[,i])))
+}
+SIG <- cov(data)
+SIG
+```
+
+ Covariance matrix of the standardized data is exactly the same as the correlation matrix of the original data. Therefore, the principal components(PCs) of the standardized can also be found using eigenvalues and eigenvectors of the correlation matrix, R. The first two PCs are below, that $z_i$ means standardized $i^{th}$ variable.
+ 
+ $Y_1 = -0.378z_1 -0.383z_2-0.368z_3-0.395z_4-0.389z_5-0.376z_6-0.355z_7$
+ 
+ $Y_2 = -0.407z_1 -0.414z_2-0.459z_3+0.161z_4+0.309z_5+0.423z_6+0.389z_7$
+ 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+#####I DIDN'T PUT CODE FOR CORRELATION PART
+
+my_PCA<-prcomp(data,scale = TRUE)
+summary(my_PCA)
+```
+
+ The proportion of variance of each principal components are above shown. The cummulative percentage of the total sample variance explained by the first two PCs are 91.95%.
+ 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(factoextra)
+
+fviz_contrib(my_PCA,choice = "var",axes = 1) #Contribution to PC1
+#All variables contributes equally to dimension 1
+
+fviz_contrib(my_PCA,choice = "var",axes = 2) #Contribution to PC2
+
+```
+
+ On the graph related to the first PC, it is possible to find that all variables are almost equally contributing to the variation. However, on the second PC contribution graph, contribution rate differs by the distances. With the second eigenvector shown before, it is possible to predict that the short-distance race and long-distance race affect the strength of the nations in the opposite ways.
+
+```{r}
+scores_frame<-data.frame("Country"=original_data$Country,"Scores"=my_PCA$x[,1])
+scores_frame<-scores_frame[order(scores_frame$Scores,decreasing = TRUE),]
+head(scores_frame)
+```
+
+ The first PC shows the scores as above. Intuitive nations of athletic excellence corresponds to the ranking turned out above.
