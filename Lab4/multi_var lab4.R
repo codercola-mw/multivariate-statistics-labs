@@ -1,5 +1,17 @@
-aaa <- read.table('/Users/darin/Desktop/multi-var/P10-16.DAT')
-aaa <- as.matrix(aaa)
+bbb <- read.table('/Users/darin/Desktop/multi-var/P10-16.DAT')
+bbb <- as.matrix(bbb)
+bbb
+
+aaa <- matrix(0,5,5)
+
+for(i in 1:nrow(bbb))
+{
+  for(j in 1:ncol(bbb))
+  {
+    aaa[i,j]<-bbb[i,j]/(sqrt(bbb[i,i])*sqrt(bbb[j,j]))
+  }
+}
+aaa
 
 s11 <- aaa[1:3,1:3]
 s12 <- aaa[1:3,4:5]
