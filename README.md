@@ -1,2 +1,2 @@
-# Lab1
-multstat
+# Multi-stats
+lab3 - PCA analysis
