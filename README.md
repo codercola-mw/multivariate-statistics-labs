@@ -1,3 +1,8 @@
 # Multi-stats
-lab2 - inferences of mean factor
+lab1 - Examining Multivariate Data
+
+
+lab2 - Inferences of mean factor
+
+
 lab3 - PCA analysis
